@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse 
 
-from rest_framework.parsers import JSONParser
-from rest_framework.decorators import api_view
+#from rest_framework.parsers import JSONParser
+#from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -12,62 +13,49 @@ from .serializers import ArticleModelSerializer
 from pprint import pprint
 # Create your views here.
 
-@api_view(['GET', 'POST'])# this enables full rest_framework view functionality (web browsable api)
-def article_list_view(request):
-  
-  if request.method == 'GET':
-    """
-    View list of all ariticles
-    """
+class ArticleListAPIView(APIView):
+  def get(self, request):
     articles = Article.objects.all()
     serializer = ArticleModelSerializer(articles, many=True)
     return Response(serializer.data)
     
-  elif request.method == 'POST':
-    """
-    adding an article
-    """
-    data = request.data #already parsed
-    pprint(data)
+  def post(self, request):
+    data = request.data
     serializer = ArticleModelSerializer(data=data)
     
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+    return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
     
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def article_detail(request, pk):
-  try:
-    article = Article.objects.get(pk=pk)
-  except Article.DoesNotExist:
-    return HttpResponse("Requested Article Does Not Exist", status=status.HTTP_404_NOT_FOUND)
+class ArticleDetailAPIView(APIView):
+  def get_object(self, id):
+    """
+    this method returns a single instance of the model if found.
+    note that if the requested instance is not found then a Response object is returned which would raise errors if passed in as data to a serializer.
+    """
+    try:
+      return Article.objects.get(id=id)
+    except Article.DoesNotExist:
+      return Response(status=status.HTTP_404_NOT_FOUND)
     
-  if request.method == 'GET':
-    """
-    article detail
-    """
+  def get(self, request, id):
+    article = self.get_object(id)
     serializer = ArticleModelSerializer(article)
     return Response(serializer.data)
     
-  elif request.method == 'PUT':
-    """
-    update an article
-    """
-    data = request.data
-    serializer = ArticleModelSerializer(article, data=data)
+  def put(self, request, id):
+    article = self.get_object(id)
+    serializer = ArticleModelSerializer(article, data=request.data)
     
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-  
-  elif request.method == 'DELETE':
-    """
-    delete an article
-    """
-    article_title = article.title
+    
+  def delete(self, request, id):
+    article = self.get_object(id)
     article.delete()
-    return Response(f"{article_title} deleted!", status=status.HTTP_204_NO_CONTENT)
+    return Response("Article deleted", status=status.HTTP_204_NO_CONTENT)
