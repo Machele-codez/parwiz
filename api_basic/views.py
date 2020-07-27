@@ -9,7 +9,7 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication 
-from rest_framework.permissions import IsAuthenticated 
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Article
 from .serializers import ArticleModelSerializer
@@ -25,11 +25,14 @@ class ArticleGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixi
   serializer_class = ArticleModelSerializer
   queryset = Article.objects.all()
   
-  lookup_field = 'id'#field used to retrieve medal instance 
+  lookup_field = 'id'#field used to retrieve model instance 
+  
+  authentication_classes = [SessionAuthentication, BasicAuthentication,] #for some reason only the first one is used
+  permission_classes = [IsAuthenticated]
   
   def get(self, request, id=None):
     if id:
-      return self.retrieve(request, id)# gets single object using id
+      return self.retrieve(request, id) #gets single object using id
       
     return self.list(request) #gets list of all objects in queryset
   
@@ -37,7 +40,7 @@ class ArticleGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixi
     return self.create(request) #create view from mixins.CreateModelMixin
   
   def put(self, request, id):
-    return self.update(request, id) #upate instance
+    return self.update(request, id) #update instance
     
   def delete(self, request, id):
     return self.destroy(request, id) #delete an instance
