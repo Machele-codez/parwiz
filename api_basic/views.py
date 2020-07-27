@@ -4,6 +4,8 @@ from django.http import HttpResponse, JsonResponse
 #from rest_framework.parsers import JSONParser
 #from rest_framework.decorators import api_view
 from rest_framework.views import APIView
+from rest_framework import generics
+from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -13,49 +15,28 @@ from .serializers import ArticleModelSerializer
 from pprint import pprint
 # Create your views here.
 
-class ArticleListAPIView(APIView):
-  def get(self, request):
-    articles = Article.objects.all()
-    serializer = ArticleModelSerializer(articles, many=True)
-    return Response(serializer.data)
-    
+class ArticleGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin):
+  """
+  The view would have its request methods take in an optional id argument so as to allow one view to handle both single object and multiple object operations via two URLs. 
+  """
+  
+  serializer_class = ArticleModelSerializer
+  queryset = Article.objects.all()
+  
+  lookup_field = 'id'
+  
+  def get(self, request, id=None):
+    if id:
+      return self.retrieve(request, id)# gets single object using id
+      
+    return self.list(request) #gets list of all objects in queryset
+  
   def post(self, request):
-    data = request.data
-    serializer = ArticleModelSerializer(data=data)
-    
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
-    
-
-class ArticleDetailAPIView(APIView):
-  def get_object(self, id):
-    """
-    this method returns a single instance of the model if found.
-    note that if the requested instance is not found then a Response object is returned which would raise errors if passed in as data to a serializer.
-    """
-    try:
-      return Article.objects.get(id=id)
-    except Article.DoesNotExist:
-      return Response(status=status.HTTP_404_NOT_FOUND)
-    
-  def get(self, request, id):
-    article = self.get_object(id)
-    serializer = ArticleModelSerializer(article)
-    return Response(serializer.data)
-    
+    return self.create(request) #create view from mixins.CreateModelMixin
+  
   def put(self, request, id):
-    article = self.get_object(id)
-    serializer = ArticleModelSerializer(article, data=request.data)
-    
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return self.update(request, id) #upate instance
     
   def delete(self, request, id):
-    article = self.get_object(id)
-    article.delete()
-    return Response("Article deleted", status=status.HTTP_204_NO_CONTENT)
+    return self.destroy(request, id) #delete an instance
+  
