@@ -23,7 +23,7 @@ class ArticleGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixi
   serializer_class = ArticleModelSerializer
   queryset = Article.objects.all()
   
-  lookup_field = 'id'
+  lookup_field = 'id'#field used to retrieve medal instance 
   
   def get(self, request, id=None):
     if id:
