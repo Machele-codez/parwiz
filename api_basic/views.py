@@ -3,11 +3,13 @@ from django.http import HttpResponse, JsonResponse
 
 #from rest_framework.parsers import JSONParser
 #from rest_framework.decorators import api_view
-from rest_framework.views import APIView
+#from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import mixins
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication 
+from rest_framework.permissions import IsAuthenticated 
 
 from .models import Article
 from .serializers import ArticleModelSerializer
