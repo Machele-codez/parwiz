@@ -1,8 +1,14 @@
-from django.urls import path
-from .views import ArticleGenericAPIView
+from django.urls import path, include
+
+from .views import ArticleViewSet
+
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register('articles', ArticleViewSet, basename='articles')
 
 
 urlpatterns = [
-  path('generic/articles/', ArticleGenericAPIView.as_view()),
-  path('generic/articles/<int:id>/', ArticleGenericAPIView.as_view()),
+  path('viewsets/', include(router.urls)),
+  path('viewsets/<int:pk>', include(router.urls)),
   ]
