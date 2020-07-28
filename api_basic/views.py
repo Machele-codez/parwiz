@@ -27,7 +27,7 @@ class ArticleGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixi
   
   lookup_field = 'id'#field used to retrieve model instance 
   
-  authentication_classes = [SessionAuthentication, BasicAuthentication,] #for some reason only the first one is used
+  authentication_classes = [BasicAuthentication, SessionAuthentication] #for some reason only the first one is used
   permission_classes = [IsAuthenticated]
   
   def get(self, request, id=None):
