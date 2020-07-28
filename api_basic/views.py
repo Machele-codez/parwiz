@@ -8,7 +8,7 @@ from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.authentication import BasicAuthentication, SessionAuthentication 
+from rest_framework.authentication import TokenAuthentication 
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Article
@@ -27,7 +27,7 @@ class ArticleGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixi
   
   lookup_field = 'id'#field used to retrieve model instance 
   
-  authentication_classes = [BasicAuthentication, SessionAuthentication] #for some reason only the first one is used
+  authentication_classes = [TokenAuthentication]
   permission_classes = [IsAuthenticated]
   
   def get(self, request, id=None):
