@@ -17,38 +17,10 @@ from .serializers import ArticleModelSerializer
 from pprint import pprint
 # Create your views here.
 
-class ArticleViewSet(viewsets.ViewSet):
-  def list(self, request):
-    queryset = Article.objects.all()
-    serializer = ArticleModelSerializer(queryset, many=True)
-    return Response(serializer.data)
+class ArticleViewSet(viewsets.ModelViewSet):
+  """
+  provides all the default .create .list .retrieve , etc. methods
+  """
+  serializer_class = ArticleModelSerializer
+  queryset = Article.objects.all()
   
-  def create(self, request):
-    serializer = ArticleModelSerializer(data=request.data)
-    
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-  
-  def retrieve(self, request, pk=None):
-    queryset = Article.objects.all()
-    article = get_object_or_404(queryset, pk=pk)
-    serializer = ArticleModelSerializer(article)
-    return Response(serializer.data)
-  
-  def destroy(self, request, pk):
-    queryset = Article.objects.all()
-    article = get_object_or_404(queryset, pk=pk)
-    article.delete()
-    return Response("Article Deleted")
-    
-  def update(self, request, pk):
-    queryset = Article.objects.all()
-    article = get_object_or_404(queryset, pk=pk)
-    serializer = ArticleModelSerializer(article, data=request.data)
-    
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

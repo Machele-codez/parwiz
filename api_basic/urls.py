@@ -9,6 +9,6 @@ router.register('articles', ArticleViewSet, basename='articles')
 
 
 urlpatterns = [
-  path('viewsets/', include(router.urls)),
-  path('viewsets/<int:pk>', include(router.urls)),
+  path('modelviewset/', include(router.urls)),
+  path('modelviewset/<int:pk>', include(router.urls)),
   ]
